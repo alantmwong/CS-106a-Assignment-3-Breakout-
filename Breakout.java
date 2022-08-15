@@ -61,15 +61,17 @@ public class Breakout extends GraphicsProgram {
 	/** Runs the Breakout program. */
 	public void run() {
 		/* You fill this in, along with any subsidiary methods */
+		//must call this to get mouse events
+		addMouseListeners();
 		gameSetup();
 		gameRun();
 	}
 	private void gameSetup() {
 		setupBricks();
-		setupPaddle();
+		initPaddle();
 	}
 	private void gameRun(){
-
+		createBall();
 	}
 	/* setupBricks() is a method that helps set up the game by placing coloured bricks
 	 * in the appropriate x and y coordinates. 
@@ -136,33 +138,38 @@ public class Breakout extends GraphicsProgram {
 		}
 	}
 	
-	/* setupPaddle() is a method that creates a paddle in the appropriate position 
+	/* inigPaddle() is a method that creates a paddle in the appropriate position 
 	 * whilst following the mouse in the y direction without falling off the screen
 	 * when the mouse leaves the screen. 
 	 */
-	private void setupPaddle() {
-		// must call this to get mouse events
-		addMouseListeners();
+	private void initPaddle() {
 		// add paddle
-		GRect paddle = new GRect(APPLICATION_WIDTH/2, APPLICATION_HEIGHT-
-				PADDLE_Y_OFFSET-PADDLE_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT);
+		paddle = new GRect(WIDTH/2 - PADDLE_WIDTH/2, HEIGHT -  
+				2 * PADDLE_Y_OFFSET - PADDLE_HEIGHT,PADDLE_WIDTH, PADDLE_HEIGHT);
 		paddle.setFilled(true);
 		paddle.setFillColor(Color.BLACK);
 		add(paddle);
-	}
-	public void mousePressd(MouseEvent e) {
 		
-		last = new GPoint(e.getPoint());
 	}
-	public void mouseDragged(MouseEvent e) {
-		paddle.move(e.getX()-last.getX(),e.getY()-last.getY());
-		last = new GPoint(e.getPoint());
+	public void mouseMoved(MouseEvent e) {
+		// setting up the condition for the paddle to retain it's shape when against 
+		// both walls and to not disappear
+		
+		if (e.getX() < WIDTH - PADDLE_WIDTH && e.getX() >= 0) {
+			// this condition is for if the paddle is in the allowable space. 
+			paddle.setLocation(e.getX(), HEIGHT - 2 * PADDLE_Y_OFFSET - PADDLE_HEIGHT);
+			
+		} else if (e.getX() >= WIDTH - PADDLE_WIDTH) {
+			// this is for if the paddle is going outside the space to the right wall
+			paddle.setLocation(WIDTH - PADDLE_WIDTH, HEIGHT - 2 
+					* PADDLE_Y_OFFSET - PADDLE_HEIGHT);
+			
+		}
 	}
-	private GObject paddle;
-	private GPoint last;
-	
-	
-	
-	
+	private void createBall() {
+		
+	}
+	// instance variables added because they are needed outside the localised scope. 
+	private GRect paddle;
 	
 }
