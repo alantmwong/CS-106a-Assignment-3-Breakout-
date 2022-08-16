@@ -69,9 +69,14 @@ public class Breakout extends GraphicsProgram {
 	private void gameSetup() {
 		setupBricks();
 		initPaddle();
+		setupTurns();
 	}
 	private void gameRun(){
-		createBall();
+		for (int i = NTURNS; i > 0; i--) {
+			createBall();
+			turns.setLabel("Turns remaining: " + (i-1));
+			add(turns);
+		}
 	}
 	/* setupBricks() is a method that helps set up the game by placing coloured bricks
 	 * in the appropriate x and y coordinates. 
@@ -166,9 +171,14 @@ public class Breakout extends GraphicsProgram {
 
 		}
 	}
+	private void setupTurns() {
+		turns = new GLabel("Turns remaining: " + NTURNS);
+		add(turns, WIDTH-turns.getWidth()-15, HEIGHT/2 - 100);
+	}
+	
 	private void createBall() {
 		// creating ball in the centre of the screen. 
-		GOval ball = new GOval(WIDTH/2 - BALL_RADIUS, HEIGHT/2 
+		ball = new GOval(WIDTH/2 - BALL_RADIUS, HEIGHT/2 
 				- BALL_RADIUS,BALL_RADIUS,BALL_RADIUS);
 		ball.setFilled(true);
 		ball.setColor(Color.BLACK);
@@ -179,19 +189,66 @@ public class Breakout extends GraphicsProgram {
 		if (rgen.nextBoolean(0.5)){
 			vx = -vx;
 		}
-		while (true) {
+		// bouncing ball
+		while (BRICKS_REMAINING > 0) {
+			// check colliding object
+			GObject collider = getCollidingObject();
+			if (collider == paddle) {
+				vy = -3;
+			} else if (collider != null && collider != turns){
+				vy = -vy; 
+				remove(collider);
+				BRICKS_REMAINING--;
+			}
 			ball.move(vx,vy);
-			pause(5);
-			if (ball.getX() < 5 || ball.getX() > WIDTH - BALL_RADIUS * 2 - 3){
+			pause(10);
+			// check if ball is in application window
+			if (ball.getX() < 5 || ball.getX() > WIDTH - BALL_RADIUS * 2){
 				vx = -vx;
-			} else if (ball.getY() < 5 || ball.getY() > HEIGHT - BALL_RADIUS * 2 - 15) {
+			} else if (ball.getY() < 5) {
 				vy = -vy;
+			} else if (ball.getY() > HEIGHT - BALL_RADIUS * 2 - 15) {
+				break;
 			}
 		}
+		if (BRICKS_REMAINING == 0) {
+			add(new GLabel("You Win", WIDTH/2, HEIGHT/2));
+			remove(ball);
+		}
+		
 	}
-	
+	// returning colliding object if the ball is colliding with one. 
+	private GObject getCollidingObject() {// checks 4 corners of the ball
+		if (getElementAt(ball.getX(), ball.getY()) != null) {
+
+			return getElementAt(ball.getX(), ball.getY());
+
+		} else if (getElementAt(ball.getX()+2*BALL_RADIUS, ball.getY()) != null) {
+
+			return getElementAt(ball.getX()+2*BALL_RADIUS, ball.getY());
+
+		} else if (getElementAt(ball.getX(), ball.getY()+2*BALL_RADIUS) != null) {
+
+			return getElementAt(ball.getX(), ball.getY()+2*BALL_RADIUS);
+
+		} else if (getElementAt(ball.getX()+2*BALL_RADIUS, 
+				ball.getY()+2*BALL_RADIUS) != null) {
+
+			return getElementAt(ball.getX()+2*BALL_RADIUS, ball.getY()+2*BALL_RADIUS);
+
+		} else {
+
+			return null;
+
+		}
+	}
+
+
 	// instance variables added because they are needed outside the localised scope. 
 	private GRect paddle;
 	private double vx, vy;
 	private RandomGenerator rgen = RandomGenerator.getInstance();
+	private GOval ball;
+	private int BRICKS_REMAINING = NBRICKS_PER_ROW * NBRICK_ROWS;
+	private GLabel turns;
 }
