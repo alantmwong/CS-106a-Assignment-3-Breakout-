@@ -137,7 +137,7 @@ public class Breakout extends GraphicsProgram {
 			}
 		}
 	}
-	
+
 	/* inigPaddle() is a method that creates a paddle in the appropriate position 
 	 * whilst following the mouse in the y direction without falling off the screen
 	 * when the mouse leaves the screen. 
@@ -149,27 +149,49 @@ public class Breakout extends GraphicsProgram {
 		paddle.setFilled(true);
 		paddle.setFillColor(Color.BLACK);
 		add(paddle);
-		
+
 	}
 	public void mouseMoved(MouseEvent e) {
 		// setting up the condition for the paddle to retain it's shape when against 
 		// both walls and to not disappear
-		
+
 		if (e.getX() < WIDTH - PADDLE_WIDTH && e.getX() >= 0) {
 			// this condition is for if the paddle is in the allowable space. 
 			paddle.setLocation(e.getX(), HEIGHT - 2 * PADDLE_Y_OFFSET - PADDLE_HEIGHT);
-			
+
 		} else if (e.getX() >= WIDTH - PADDLE_WIDTH) {
 			// this is for if the paddle is going outside the space to the right wall
 			paddle.setLocation(WIDTH - PADDLE_WIDTH, HEIGHT - 2 
 					* PADDLE_Y_OFFSET - PADDLE_HEIGHT);
-			
+
 		}
 	}
 	private void createBall() {
-		
+		// creating ball in the centre of the screen. 
+		GOval ball = new GOval(WIDTH/2 - BALL_RADIUS, HEIGHT/2 
+				- BALL_RADIUS,BALL_RADIUS,BALL_RADIUS);
+		ball.setFilled(true);
+		ball.setColor(Color.BLACK);
+		add(ball);
+		// generating velocities
+		vx = rgen.nextDouble(1.0, 3.0);
+		vy = 3;
+		if (rgen.nextBoolean(0.5)){
+			vx = -vx;
+		}
+		while (true) {
+			ball.move(vx,vy);
+			pause(5);
+			if (ball.getX() < 5 || ball.getX() > WIDTH - BALL_RADIUS * 2 - 3){
+				vx = -vx;
+			} else if (ball.getY() < 5 || ball.getY() > HEIGHT - BALL_RADIUS * 2 - 15) {
+				vy = -vy;
+			}
+		}
 	}
+	
 	// instance variables added because they are needed outside the localised scope. 
 	private GRect paddle;
-	
+	private double vx, vy;
+	private RandomGenerator rgen = RandomGenerator.getInstance();
 }
